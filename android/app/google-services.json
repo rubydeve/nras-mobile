@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "174986601142",
+    "project_id": "nras-60608",
+    "storage_bucket": "nras-60608.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174986601142:android:e886f055e24d2a5c923c17",
+        "android_client_info": {
+          "package_name": "com.nras"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD66jijonXdKLiLzFQtb9ZoJNWgT1gvke8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
