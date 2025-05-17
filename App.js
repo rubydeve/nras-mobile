@@ -1,5 +1,8 @@
+
+
+
 import React, { useState, useEffect, useRef } from 'react';
-import { SafeAreaView, StyleSheet, PermissionsAndroid, Platform } from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar, ActivityIndicator} from 'react-native';
 import { WebView } from 'react-native-webview';
 import ErrorCard from './src/ErrorCard';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -11,23 +14,22 @@ import SplashScreen from 'react-native-splash-screen';
 
 const MyWebView = () => {
   usePushNotifications();
-
   const [error, setError] = useState(false);
-  const [load, setLoading] = useState(true)
   const [user, setUser] = useState()
 
   const webviewRef = useRef(null);
   const url = 'https://www.nras.gov.gh'
 
   const handleError = () => {
-    setError(false);
+    setError(true);
   };
-  const showSpinner = () => {
-    setLoading(true)
-  }
-  const hideSpinner = () => {
-    setLoading(false)
-  }
+  
+  const handleReload = () => {
+    webviewRef.current?.reload();
+    setError(false);
+
+  };
+
 
 
   function setToken(token){
@@ -51,40 +53,9 @@ const MyWebView = () => {
   }
   
   useEffect(() => {
-    SplashScreen.hide(); // Hide splash screen after app is loaded
+    SplashScreen.hide(); 
   },[])
 
-  // useEffect(() => {
-
-  //   const checkPermissions = async () => {
-  //     if(Platform.OS ==="android"){
-  //       try {
-  //         PermissionsAndroid.check('android.permission.POST_NOTIFICATIONS').then(
-  //           response => {
-  //             if(!response){
-  //               PermissionsAndroid.request('android.permission.POST_NOTIFICATIONS',{
-  //                   title: 'Notification',
-  //                   message:
-  //                     "We'd like to send you notifications about updates and important messages. Do you want to allow notifications?",
-  //                   buttonNegative: 'Cancel',
-  //                   buttonPositive: 'OK',
-  //               })
-  //             }
-  //           }
-  //         ).catch(
-  //           err => {
-              
-  //           }
-  //         )
-  //       } catch (err){
-          
-  //       }
-  //     }
-  //   }
-  //   console.log('sssssssssssssssssssssssssssssss')
-  //   checkPermissions()
-  //   requestUserPermission()
-  // },[]);
 
   useEffect(() => {
     getFcmToken()
@@ -95,57 +66,65 @@ const MyWebView = () => {
   }, [user])
 
   return (
-    <SafeAreaView style={styles.rootView}>
-      {error ? (
-        <ErrorCard handleError={handleError}/>
-      ) : (
-        <>
-          <Spinner
-            visible={load}
-            textContent='Loading...'
-            overlayColor="#fff"
-            color='#2e348a'
-            indicatorStyle={{color: '#2e348a'}}
-            textStyle={{ color: '#2e348a' }}
-          />
-          <WebView
-            onLoad={hideSpinner}
-            onLoadStart={showSpinner}
-            source={{ uri: url }}
-            onError={handleError}
-            onHttpError={handleError}
-            ref={webviewRef}
-            javaScriptEnabled={true}
+    <>
+      <StatusBar barStyle='dark-content'/>
+      <SafeAreaView style={styles.rootView}>
+        {error ? (
+          <ErrorCard handleError={handleReload}/>
+        ) : (
+          <>
+        
+            <WebView
+              source={{ uri: url }}
+              onError={handleError}
+              onHttpError={handleError}
+              ref={webviewRef}
+              javaScriptEnabled={true}
+              style={styles.WebView}
+              injectedJavaScriptBeforeContentLoaded={`
+                // This runs before the page loads
+                fetch('${url}/api/v1/current_user', {
+                  credentials: 'include'  // include session cookie
+                })
+                .then(res => res.json())
+                .then(user => {
+                  window.ReactNativeWebView.postMessage(JSON.stringify(user));
+                });
+              `}
+              androidLayerType="hardware"
+              cacheEnabled={true}
+              cacheMode="LOAD_CACHE_ELSE_NETWORK"
+              startInLoadingState={true}
+              renderLoading={() => <Spinner
+                visible={true}
+                textContent='Loading...'
+                overlayColor="#fff"
+                color='#2e348a'
+                indicatorStyle={{color: '#2e348a'}}
+                textStyle={{ color: '#2e348a' }}
+              />}
 
-            injectedJavaScriptBeforeContentLoaded={`
-              // This runs before the page loads
-              fetch('${url}/api/v1/current_user', {
-                credentials: 'include'  // include session cookie
-              })
-              .then(res => res.json())
-              .then(user => {
-                window.ReactNativeWebView.postMessage(JSON.stringify(user));
-              });
-            `}
+              onMessage={(event) => {
+                const user = JSON.parse(event.nativeEvent.data);
+                setUser(user.email)
+              }}
+            />
+          </>
+        )
+        }
 
-            onMessage={(event) => {
-              const user = JSON.parse(event.nativeEvent.data);
-              setUser(user.email)
-            }}
-          />
-        </>
-      )
-      }
-
-    </SafeAreaView>
+      </SafeAreaView>
+    </>
   );                                        
 };
 
 const styles = StyleSheet.create({
   rootView: {
     flex: 1,
-    // flexDirection: 'column',
-    // justifyContent: 'center'
+    paddingTop: StatusBar.currentHeight
+  },
+  WebView: {
+    flex: 1
   },
   rootContainer: {justifyContent: 'flex-start', padding: 10},
 });
