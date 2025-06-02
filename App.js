@@ -2,7 +2,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, StatusBar, ActivityIndicator} from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar} from 'react-native';
 import { WebView } from 'react-native-webview';
 import ErrorCard from './src/ErrorCard';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -81,6 +81,7 @@ const MyWebView = () => {
               ref={webviewRef}
               javaScriptEnabled={true}
               style={styles.WebView}
+              autoManageStatusBarEnabled={false}
               injectedJavaScriptBeforeContentLoaded={`
                 // This runs before the page loads
                 fetch('${url}/api/v1/current_user', {
@@ -91,7 +92,7 @@ const MyWebView = () => {
                   window.ReactNativeWebView.postMessage(JSON.stringify(user));
                 });
               `}
-              androidLayerType="hardware"
+              // androidLayerType="hardware"
               cacheEnabled={true}
               cacheMode="LOAD_CACHE_ELSE_NETWORK"
               startInLoadingState={true}
