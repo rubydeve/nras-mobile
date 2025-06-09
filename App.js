@@ -109,6 +109,14 @@ const MyWebView = () => {
                 const user = JSON.parse(event.nativeEvent.data);
                 setUser(user.email)
               }}
+
+              domStorageEnabled={true}
+              allowFileAccess={true}
+              allowFileAccessFromFileURLs={true}
+              allowUniversalAccessFromFileURLs={true}
+              mediaPlaybackRequiresUserAction={false}
+              originWhitelist={['*']}
+
             />
           </>
         )
