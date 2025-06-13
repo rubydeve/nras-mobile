@@ -1682,6 +1682,10 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
+  - RNFileViewer (2.1.5):
+    - React-Core
+  - RNFS (2.20.0):
+    - React-Core
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -1758,6 +1762,8 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
+  - RNFileViewer (from `../node_modules/react-native-file-viewer`)
+  - RNFS (from `../node_modules/react-native-fs`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1916,6 +1922,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
+  RNFileViewer:
+    :path: "../node_modules/react-native-file-viewer"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2000,9 +2010,11 @@ SPEC CHECKSUMS:
   ReactCommon: 8fdc2d8511f4099f25d5929f7fa4284c14a7e509
   RNFBApp: b67ded6e4b0a6c0fee5e4f8e75e3a31567949a08
   RNFBMessaging: 7202ad4c49bdcdc7fd3634d85827a6305049c148
+  RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 0c521d2eddeeff54ba1126068140b6e970a77fc0
 
-PODFILE CHECKSUM: bec1f1763306a162c4e85d629247f49baccf1131
+PODFILE CHECKSUM: cff464ee01ae29cfee6c548839ad50394e3aea61
 
 COCOAPODS: 1.15.2

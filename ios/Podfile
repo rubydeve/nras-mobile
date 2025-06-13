@@ -18,6 +18,9 @@ if linkage != nil
 end
 
 target 'nras' do
+  pod 'RNFileViewer', :path => '../node_modules/react-native-file-viewer'
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   config = use_native_modules!
 
   use_react_native!(
@@ -34,5 +37,15 @@ target 'nras' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    installer.pods_project.targets.each do |target|
+      if target.name == 'React-Core' || target.name.start_with?('React')
+        target.build_configurations.each do |config|
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_ENABLE_INSPECTOR=1'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_REMOTE_PROFILE=0' # Optional: disable profiler
+        end
+      end
+    end
   end
 end
