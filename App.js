@@ -1,8 +1,5 @@
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, StatusBar, Linking, Platform } from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar, Alert, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ErrorCard from './src/ErrorCard';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -10,7 +7,9 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import messaging from '@react-native-firebase/messaging';
 import usePushNotifications from './src/usePushNotifications';
 import SplashScreen from 'react-native-splash-screen';
-
+// file 
+import RNFS from "react-native-fs";
+import FileViewer from "react-native-file-viewer";
 
 const MyWebView = () => {
   usePushNotifications();
@@ -29,15 +28,41 @@ const MyWebView = () => {
     setError(false);
 
   };
+  const handleUrlCall = (event) => {
+    const url = event.url
+        if (Platform.OS === 'ios' && url.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpg|jpeg|png|gif|bmp|zip|rar|7z|mp3|mp4|avi|mov|mkv|txt|csv|xml|webp|heic)$/i)) {
+       console.log('yes in code')
+          handleUrl(url)
+           return false; 
+        }else{
+          return true;
+        }
+  }
+  const handleUrl = async (url) => {
+  
 
-   const handleUrl = (request) => {
-    const url = request.url;
-    if (Platform.OS === 'ios' && url.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpg|jpeg|png|gif|bmp|zip|rar|7z|mp3|mp4|avi|mov|mkv|txt|csv|json|xml|webp|heic)$/i)) {
-      Linking.openURL(url); // Open in external viewer
-      return false; // Cancel WebView loading
+    try {
+      const fileName = url.split('/').pop() || `file_${Date.now()}`;
+      const localPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+      // Download the file
+      const download = RNFS.downloadFile({
+        fromUrl: url,
+        toFile: localPath,
+      });
+
+      await download.promise;
+
+      // Open the file
+      await FileViewer.open(localPath, { showOpenWithDialog: true });
+
+    } catch (error) {
+      console.error('File download/view error:', error);
+      Alert.alert('Error', 'Unable to open file.');
+    
     }
-    return true;
   };
+    
 
 
 
@@ -88,7 +113,7 @@ const MyWebView = () => {
               source={{ uri: url }}
               onError={handleError}
               onHttpError={handleError}
-              onShouldStartLoadWithRequest={handleUrl}
+              onShouldStartLoadWithRequest={handleUrlCall}
               ref={webviewRef}
               javaScriptEnabled={true}
               style={styles.WebView}
