@@ -2,7 +2,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, StatusBar} from 'react-native';
+import { StyleSheet, SafeAreaView, StatusBar, Linking, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ErrorCard from './src/ErrorCard';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -29,6 +29,16 @@ const MyWebView = () => {
     setError(false);
 
   };
+
+   const handleUrl = (request) => {
+    const url = request.url;
+    if (Platform.OS === 'ios' && url.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpg|jpeg|png|gif|bmp|zip|rar|7z|mp3|mp4|avi|mov|mkv|txt|csv|json|xml|webp|heic)$/i)) {
+      Linking.openURL(url); // Open in external viewer
+      return false; // Cancel WebView loading
+    }
+    return true;
+  };
+
 
 
 
@@ -78,6 +88,7 @@ const MyWebView = () => {
               source={{ uri: url }}
               onError={handleError}
               onHttpError={handleError}
+              onShouldStartLoadWithRequest={handleUrl}
               ref={webviewRef}
               javaScriptEnabled={true}
               style={styles.WebView}

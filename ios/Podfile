@@ -1,3 +1,6 @@
+#use_modularuse_frameworks! :linkage => :static_headers!
+use_frameworks! :linkage => :static
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
