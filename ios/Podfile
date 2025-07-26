@@ -24,6 +24,7 @@ target 'nras' do
   config = use_native_modules!
 
   use_react_native!(
+    :hermes_enabled => true,
     :path => config[:reactNativePath],
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
@@ -38,14 +39,14 @@ target 'nras' do
       # :ccache_enabled => true
     )
 
-    installer.pods_project.targets.each do |target|
-      if target.name == 'React-Core' || target.name.start_with?('React')
-        target.build_configurations.each do |config|
-          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
-          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_ENABLE_INSPECTOR=1'
-          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_REMOTE_PROFILE=0' # Optional: disable profiler
-        end
-      end
-    end
+#    installer.pods_project.targets.each do |target|
+ #     if target.name == 'React-Core' || target.name.start_with?('React')
+  #      target.build_configurations.each do |config|
+   #       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+    #      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_ENABLE_INSPECTOR=1'
+     #     config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_REMOTE_PROFILE=0' # Optional: disable profiler
+     #   end
+     # end
+    #end
   end
 end

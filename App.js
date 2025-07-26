@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, StatusBar, Alert, Platform } from 'react-native';
+import { ScrollView, RefreshControl, StyleSheet, SafeAreaView, StatusBar, Alert, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ErrorCard from './src/ErrorCard';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -14,13 +14,21 @@ import FileViewer from "react-native-file-viewer";
 const MyWebView = () => {
   usePushNotifications();
   const [error, setError] = useState(false);
-  const [user, setUser] = useState()
+  const [user, setUser] = useState();
+  const [key, setKey] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const webviewRef = useRef(null);
   const url = 'https://www.nras.gov.gh'
 
   const handleError = () => {
     setError(true);
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    webviewRef.current?.reload(); // Soft refresh
+    setTimeout(() => setRefreshing(false), 1000); // Delay to simulate loading
   };
   
   const handleReload = () => {
@@ -99,11 +107,21 @@ const MyWebView = () => {
     });
     return unsubscribe;
   }, [user])
+  
 
   return (
-    <>
-      <StatusBar barStyle='dark-content'/>
+  
+
       <SafeAreaView style={styles.rootView}>
+        <StatusBar barStyle='dark-content'/>
+        <ScrollView
+         style={{ flex: 1 }}
+         contentContainerStyle={{ flex: 1 }}
+         refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+         }
+        >
+          
         {error ? (
           <ErrorCard handleError={handleReload}/>
         ) : (
@@ -128,19 +146,25 @@ const MyWebView = () => {
                   window.ReactNativeWebView.postMessage(JSON.stringify(user));
                 });
               `}
+              key={key}
+              onContentProcessDidTerminate={() => {
+                setKey(prev => prev + 1); // 👈 force unmount/remount WebView
+              }}
+              
               // androidLayerType="hardware"
               cacheEnabled={true}
               cacheMode="LOAD_CACHE_ELSE_NETWORK"
               startInLoadingState={true}
-              renderLoading={() => <Spinner
-                visible={true}
-                textContent='Loading...'
-                overlayColor="#fff"
-                color='#2e348a'
-                indicatorStyle={{color: '#2e348a'}}
-                textStyle={{ color: '#2e348a' }}
-              />}
-
+              renderLoading={ () => { <Spinner
+      visible={true}
+      textContent='Loading...'
+      overlayColor="#fff"
+      color='#2e348a'
+      indicatorStyle={{color: '#2e348a'}}
+      textStyle={{ color: '#2e348a' }}
+    />
+              }
+  }
               onMessage={(event) => {
                 const user = JSON.parse(event.nativeEvent.data);
                 setUser(user.email)
@@ -157,16 +181,16 @@ const MyWebView = () => {
           </>
         )
         }
-
-      </SafeAreaView>
-    </>
+      </ScrollView>
+    </SafeAreaView>
+  
   );                                        
 };
 
 const styles = StyleSheet.create({
   rootView: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight
+   // paddingTop: StatusBar.currentHeight
   },
   WebView: {
     flex: 1
