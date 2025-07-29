@@ -20,6 +20,7 @@
     "react-native-push-notification": "^8.1.1",
     "react-native-safe-area-context": "^5.1.0",
     "react-native-splash-screen": "^3.3.0",
+    "react-native-version-check": "^3.5.0",
     "react-native-webview": "^13.13.5"
   },
   "devDependencies": {

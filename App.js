@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ScrollView, RefreshControl, StyleSheet, SafeAreaView, StatusBar, Alert, Platform } from 'react-native';
+import { Linking, ScrollView, RefreshControl, StyleSheet, SafeAreaView, StatusBar, Alert, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ErrorCard from './src/ErrorCard';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -10,13 +10,17 @@ import SplashScreen from 'react-native-splash-screen';
 // file 
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
-
+import VersionCheck from 'react-native-version-check';
+import UpdateModal from './src/UpdateModal';
 const MyWebView = () => {
   usePushNotifications();
   const [error, setError] = useState(false);
   const [user, setUser] = useState();
   const [key, setKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [storeUrl, setStoreUrl] = useState('');
+
 
   const webviewRef = useRef(null);
   const url = 'https://www.nras.gov.gh'
@@ -70,7 +74,27 @@ const MyWebView = () => {
     
     }
   };
+
+  const checkVersion = async () => {
+    try {
+      const latestVersion = await VersionCheck.getLatestVersion();
+      const currentVersion = VersionCheck.getCurrentVersion();
+      const updateNeeded = await VersionCheck.needUpdate({ currentVersion, latestVersion });
+      // console.log()
+      if (updateNeeded?.isNeeded) {
+        setStoreUrl(updateNeeded.storeUrl);
+        setShowUpdate(true);
+      }
+    } catch (error) {
+      console.error('Version check failed:', error);
+    }
+  };
+
     
+  useEffect(() => {
+    checkVersion();
+  }, []);
+
 
 
 
@@ -113,7 +137,8 @@ const MyWebView = () => {
   
 
       <SafeAreaView style={styles.rootView}>
-        <StatusBar barStyle='dark-content'/>
+        <StatusBar translucent barStyle="dark-content" />
+
         <ScrollView
          style={{ flex: 1 }}
          contentContainerStyle={{ flex: 1 }}
@@ -182,6 +207,7 @@ const MyWebView = () => {
         )
         }
       </ScrollView>
+      <UpdateModal visible={showUpdate} storeUrl={storeUrl} />
     </SafeAreaView>
   
   );                                        
@@ -190,7 +216,7 @@ const MyWebView = () => {
 const styles = StyleSheet.create({
   rootView: {
     flex: 1,
-   // paddingTop: StatusBar.currentHeight
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // Add padding for Android
   },
   WebView: {
     flex: 1
